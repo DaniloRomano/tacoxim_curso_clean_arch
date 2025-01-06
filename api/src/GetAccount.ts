@@ -1,15 +1,12 @@
+import AccountRepository from "./AccountRepository";
+
 export default class GetAccount {
 
-	constructor (readonly getAccountData: GetAccountData) {
+	constructor (readonly accountRepository: AccountRepository) {
 	}
 	
-	async getAccount (accountId: string) {
-		const accountData = await this.getAccountData.getAccountById(accountId);
+	async execute (accountId: string) {
+		const accountData = await this.accountRepository.getAccountById(accountId);
 		return accountData;
 	}
-}
-
-// ISP - Interface Segregation Principle
-export interface GetAccountData {
-	getAccountById (accountId: string): Promise<any>;
 }
