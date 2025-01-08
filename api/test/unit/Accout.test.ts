@@ -1,9 +1,9 @@
-import Account from "../src/Account"
+import Account from "../../src/domain/Account";
 
 test("Deve criar uma conta", function(){
     const account = Account.create("John Doe","john.doe@email.com","97456321558","","123456",true,false)
-    expect(account.accountId).toBeDefined();
-    expect(account.name).toBe("John Doe")
+    expect(account.getAccountId()).toBeDefined();
+    expect(account.getName()).toBe("John Doe")
 })
 
 test("Nao deve criar uma conta com o nome inválido", function(){

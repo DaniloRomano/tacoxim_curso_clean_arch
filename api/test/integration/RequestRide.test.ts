@@ -1,20 +1,23 @@
-import { AccountRepositoryDatabase, AccountRepositoryMemory } from "../src/AccountRepository";
-import { RideRepositoryDatabase } from "../src/RideRepository";
-import GetAccount from "../src/GetAccount";
-import { MailerGatewayMemory } from "../src/MailerGateway";
-import Signup from "../src/Signup";
-import RequestRide from "../src/RequestRide";
-import GetRide from "../src/GetRide";
+import { AccountRepositoryDatabase, AccountRepositoryMemory } from "../../src/infra/repository/AccountRepository";
+import { RideRepositoryDatabase } from "../../src/infra/repository/RideRepository";
+import GetAccount from "../../src/application/usecase/accout/GetAccount";
+import { MailerGatewayMemory } from "../../src/infra/gateway/MailerGateway";
+import Signup from "../../src/application/usecase/accout/Signup";
+import DatabaseConenction, { PgPromiseAdapter } from "../../src/infra/database/DatabaseConnection";
+import GetRide from "../../src/application/usecase/ride/GetRide";
+import RequestRide from "../../src/application/usecase/ride/RequestRide";
 
 let signup: Signup;
 let getAccount: GetAccount;
 let requestRide: RequestRide;
 let getRide: GetRide;
+let connection: DatabaseConenction;
 
 beforeEach(() => {
     // const accountDAO = new AccountDAOMemory();
-    const accountDAO = new AccountRepositoryDatabase();
-    const rideDAO = new RideRepositoryDatabase();
+    connection = new PgPromiseAdapter();
+    const accountDAO = new AccountRepositoryDatabase(connection);
+    const rideDAO = new RideRepositoryDatabase(connection);
     const mailerGateway = new MailerGatewayMemory();
     signup = new Signup(accountDAO, mailerGateway);
     getAccount = new GetAccount(accountDAO);
@@ -92,3 +95,7 @@ test("Não deve solicitar uma corrida se já houver outra ativa", async function
     await requestRide.execute(inputRequestRide);    
     await expect(()=> requestRide.execute(inputRequestRide)).rejects.toThrow(new Error("Passenger already a ride active."));      
 });
+
+afterEach(()=>{
+    connection.close();
+})

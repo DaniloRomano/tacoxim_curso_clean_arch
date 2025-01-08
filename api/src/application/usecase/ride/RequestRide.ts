@@ -1,6 +1,6 @@
-import RideRepository from "./RideRepository";
-import AccountRepository from "./AccountRepository";
-import Ride from "./Ride";
+import Ride from "../../../domain/Ride";
+import AccountRepository from "../../../infra/repository/AccountRepository";
+import RideRepository from "../../../infra/repository/RideRepository";
 
 export default class RequestRide {
 	// DIP - Dependency Inversion Principle
@@ -22,7 +22,7 @@ export default class RequestRide {
 		if (hasActiveRide) throw new Error("Passenger already a ride active.")
 		await this.rideRepository.saveRide(ride);
 		return {
-			rideId: ride.rideId
+			rideId: ride.getRideId()
 		}
 	}
 }

@@ -1,16 +1,19 @@
-import Account from "../src/Account";
-import { AccountRepositoryDatabase, AccountRepositoryMemory } from "../src/AccountRepository";
-import GetAccount from "../src/GetAccount";
-import { MailerGatewayMemory } from "../src/MailerGateway";
-import Signup from "../src/Signup";
+import { AccountRepositoryDatabase, AccountRepositoryMemory } from "../../src/infra/repository/AccountRepository";
+import DatabaseConenction, { PgPromiseAdapter } from "../../src/infra/database/DatabaseConnection";
+import GetAccount from "../../src/application/usecase/accout/GetAccount";
+import { MailerGatewayMemory } from "../../src/infra/gateway/MailerGateway";
+import Signup from "../../src/application/usecase/accout/Signup";
 import sinon from "sinon";
+import Account from "../../src/domain/Account";
 
 let signup: Signup;
 let getAccount: GetAccount;
+let connection: DatabaseConenction;
 
 beforeEach(() => {
     // const accountDAO = new AccountDAOMemory();
-    const accountDAO = new AccountRepositoryDatabase();
+    connection = new PgPromiseAdapter()
+    const accountDAO = new AccountRepositoryDatabase(connection);
     const mailerGateway = new MailerGatewayMemory();
     signup = new Signup(accountDAO, mailerGateway);
     getAccount = new GetAccount(accountDAO);
@@ -35,15 +38,15 @@ test("Deve criar uma conta de passageiro", async function () {
 });
 
 test("Deve criar uma conta de motorista", async function () {
-    const input =Account.create(
-        "John Doe",
-        `john.doe${Math.random()}@gmail.com`,
-        "97456321558",        
-        "AAA9999",
-        "123456",
-        true,
-        false
-    );
+    const input ={        
+        name: "John Doe",
+        email: `john.doe${Math.random()}@gmail.com`,
+        cpf: "97456321558",        
+        carPlate: "AAA9999",
+        password: "123456",
+        isDriver: true,
+        isPassenger: false
+    };
     const outputSignup = await signup.execute(input);
     const outputGetAccount = await getAccount.execute(outputSignup.accountId);
     expect(outputSignup.accountId).toBeDefined();
@@ -128,15 +131,15 @@ test("Deve criar uma conta de passageiro com stub", async function () {
 
 test("Deve criar uma conta de passageiro com spy", async function () {
     const mailerGatewaySpy = sinon.spy(MailerGatewayMemory.prototype, "send");
-    const input =Account.create(
-        "John Doe",
-        `john.doe${Math.random()}@gmail.com`,
-        "97456321558",
-        "",
-        "123456",
-        true,
-        false
-    );
+    const input ={
+        name: "John Doe",
+        email: `john.doe${Math.random()}@gmail.com`,
+        cpf: "97456321558",
+        carPlate: "",
+        password: "123456",
+        isDriver:false,
+        isPassenger: true
+    };
     const outputSignup = await signup.execute(input);
     const outputGetAccount = await getAccount.execute(outputSignup.accountId);
     expect(outputSignup.accountId).toBeDefined();
@@ -152,15 +155,15 @@ test("Deve criar uma conta de passageiro com spy", async function () {
 
 test("Deve criar uma conta de passageiro com mock", async function () {
     const mailerGatewayMock = sinon.mock(MailerGatewayMemory.prototype);
-    const input =Account.create(
-        "John Doe",
-        `john.doe${Math.random()}@gmail.com`,
-        "97456321558",
-        "",
-        "123456",
-        true,
-        false
-    );
+    const input ={
+        name: "John Doe",
+        email: `john.doe${Math.random()}@gmail.com`,
+        cpf: "97456321558",
+        carPlate: "",
+        password: "123456",
+        isDriver: false,
+        isPassenger: true
+    };
     mailerGatewayMock.expects("send").withArgs(input.email, "Welcome", "...").once().callsFake(() => {
         console.log("abc");
     });
@@ -175,3 +178,7 @@ test("Deve criar uma conta de passageiro com mock", async function () {
     mailerGatewayMock.verify();
     mailerGatewayMock.restore();
 });
+
+afterEach(()=>{
+    connection.close();
+})
