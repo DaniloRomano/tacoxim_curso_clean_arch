@@ -1,6 +1,7 @@
 import pgp from "pg-promise";
 import Ride from "../../domain/Ride";
 import DatabaseConenction from "../database/DatabaseConnection";
+import Position from "../../domain/Position";
 
 // DAO - Data Access Object
 
@@ -19,6 +20,10 @@ export class RideRepositoryDatabase implements RideRepository {
 	}
 	async updateRide(ride: Ride): Promise<void> {
 		await this.connection.query("update ccca.ride set status = $1, driver_id=$2 where ride_id = $3",[ride.getStatus(),ride.getDriverId(),ride.getRideId()]);
+		await this.connection.query("delete from ccca.position where ride_id=$1",[ride.getRideId()]);
+		for (const position of ride.positions){
+			await this.connection.query("insert into ccca.position (position_id, ride_id, lat, long, date) values($1,$2,$3,$4,$5)",[position.getPositionId(),position.getRideId(),position.getCoord().getLat(),position.getCoord().getLong(),position.getDate()]);
+		}
 	}
 
 	async hasActiveByDriverId(driverId: string): Promise<boolean> {
@@ -33,6 +38,11 @@ export class RideRepositoryDatabase implements RideRepository {
 
 	async getRideById(rideId: string) {
 		const [rideData] = await this.connection.query("select * from ccca.ride where ride_id = $1", [rideId]);
+		const positions = [];
+		const positionsData = await this.connection.query("select * from ccca.position where ride_id=$1",[rideId])
+		for (const positionData of positionsData){
+			positions.push(new Position(positionData.position_id,positionData.ride_id,positionData.lat, positionData.long, positionData.date))
+		}
 		return new Ride(
 			rideData.ride_id,
 			rideData.passenger_id,
@@ -44,7 +54,8 @@ export class RideRepositoryDatabase implements RideRepository {
 			parseFloat(rideData.fare),
 			parseFloat(rideData.distance),
 			rideData.status,
-			rideData.date
+			rideData.date,
+			positions
 		);
 	}
 
