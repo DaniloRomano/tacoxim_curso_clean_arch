@@ -1,17 +1,16 @@
-import Position from "../../../domain/Position";
+import Position from "../../../domain/entity/Position";
+import PositionRepository from "../../../infra/repository/PositionRepository";
 import RideRepository from "../../../infra/repository/RideRepository";
 
 export default class UpdatePosition {
 	// DIP - Dependency Inversion Principle
-	constructor(readonly rideRepository: RideRepository) {
+	constructor(readonly rideRepository: RideRepository, readonly positionRepository: PositionRepository) {
 	}
 
 
-	async execute(input: Input) {				
-		const ride = await this.rideRepository.getRideById(input.rideId);		
+	async execute(input: Input) {							
 		const position = Position.create(input.rideId, input.lat, input.long);
-		ride.updatePosition(position);
-		await this.rideRepository.updateRide(ride);
+		await this.positionRepository.savePosition(position);
 	}
 }
 

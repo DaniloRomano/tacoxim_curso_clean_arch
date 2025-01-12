@@ -1,5 +1,5 @@
-import Coord from "./vo/Coord";
-import UUID from "./vo/UUID";
+import Coord from "../vo/Coord";
+import UUID from "../vo/UUID";
 
 export default class Position{
     private positionId: UUID;

@@ -6,6 +6,7 @@ import Signup from "../../src/application/usecase/accout/Signup";
 import DatabaseConenction, { PgPromiseAdapter } from "../../src/infra/database/DatabaseConnection";
 import GetRide from "../../src/application/usecase/ride/GetRide";
 import RequestRide from "../../src/application/usecase/ride/RequestRide";
+import { PositionRepositoryDatabase } from "../../src/infra/repository/PositionRepository";
 
 let signup: Signup;
 let getAccount: GetAccount;
@@ -16,13 +17,14 @@ let connection: DatabaseConenction;
 beforeEach(() => {
     // const accountDAO = new AccountDAOMemory();
     connection = new PgPromiseAdapter();
-    const accountDAO = new AccountRepositoryDatabase(connection);
-    const rideDAO = new RideRepositoryDatabase(connection);
+    const accountRepository = new AccountRepositoryDatabase(connection);
+    const rideRepository = new RideRepositoryDatabase(connection);
+    const positionRepository = new PositionRepositoryDatabase(connection);
     const mailerGateway = new MailerGatewayMemory();
-    signup = new Signup(accountDAO, mailerGateway);
-    getAccount = new GetAccount(accountDAO);
-    requestRide = new RequestRide(accountDAO, rideDAO);
-    getRide = new GetRide(accountDAO,rideDAO);
+    signup = new Signup(accountRepository, mailerGateway);
+    getAccount = new GetAccount(accountRepository);
+    requestRide = new RequestRide(accountRepository, rideRepository);
+    getRide = new GetRide(accountRepository,rideRepository,positionRepository);
 });
 
 test("Deve solicitar um corrida", async function () {

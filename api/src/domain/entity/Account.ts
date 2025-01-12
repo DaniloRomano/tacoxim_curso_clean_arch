@@ -1,9 +1,9 @@
-import Email from "./vo/Email";
-import Name from "./vo/Name";
-import Cpf from "./vo/Cpf";
-import CarPlate from "./vo/CarPlate";
-import Password from "./vo/Password";
-import UUID from "./vo/UUID";
+import Email from "../vo/Email";
+import Name from "../vo/Name";
+import Cpf from "../vo/Cpf";
+import CarPlate from "../vo/CarPlate";
+import Password from "../vo/Password";
+import UUID from "../vo/UUID";
 
 // Entity
 export default class Account {

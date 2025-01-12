@@ -1,13 +1,15 @@
+import DistanceCalculator from "../service/DistanceCalculator";
+import Coord from "../vo/Coord";
+import UUID from "../vo/UUID";
 import Position from "./Position";
-import Coord from "./vo/Coord";
-import UUID from "./vo/UUID";
 
 export default class Ride {
+
     private rideId: UUID;
     private passengerId: UUID;
     private driverId?: UUID;
     private from: Coord;
-    private to: Coord;    
+    private to: Coord;
 
     constructor(
         rideId: string,
@@ -20,8 +22,7 @@ export default class Ride {
         readonly fare: number,
         readonly distance: number,
         private status: string,
-        readonly date: Date,
-        readonly positions: Position[]
+        readonly date: Date
     ) {
         this.rideId = new UUID(rideId);
         this.passengerId = new UUID(passengerId);
@@ -33,20 +34,24 @@ export default class Ride {
 
     accept(driverId: string) {
         this.driverId = new UUID(driverId);
-        if (this.status!== "requested") throw new Error("Invalid status");
+        if (this.status !== "requested") throw new Error("Invalid status");
         this.status = "accepted";
     }
 
-    start(){
-        if (this.status!=="accepted") throw new Error("Invalid status");
-        this.status="in_progress";
+    start() {
+        if (this.status !== "accepted") throw new Error("Invalid status");
+        this.status = "in_progress";
+    }    
+
+    getDistance(): number {
+        throw new Error("Method not implemented.");
     }
 
-    updatePosition(position: Position){
-        this.positions.push(position);
+    isInProgress() {
+        return this.status !== "in_progress";
     }
 
-    getStatus(){
+    getStatus() {
         return this.status;
     }
 
@@ -84,6 +89,6 @@ export default class Ride {
         const distance = 0;
         const date = new Date();
         const status = "requested";
-        return new Ride(rideId, passengerId, null, fromLat, fromLong, toLat, toLong, fare, distance, status, date,[]);
+        return new Ride(rideId, passengerId, null, fromLat, fromLong, toLat, toLong, fare, distance, status, date);
     }
 }

@@ -1,6 +1,6 @@
 import pgp from "pg-promise";
 import DatabaseConenction from "../database/DatabaseConnection";
-import Account from "../../domain/Account";
+import Account from "../../domain/entity/Account";
 
 // Repository
 

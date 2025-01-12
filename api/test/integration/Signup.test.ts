@@ -4,7 +4,7 @@ import GetAccount from "../../src/application/usecase/accout/GetAccount";
 import { MailerGatewayMemory } from "../../src/infra/gateway/MailerGateway";
 import Signup from "../../src/application/usecase/accout/Signup";
 import sinon from "sinon";
-import Account from "../../src/domain/Account";
+import Account from "../../src/domain/entity/Account";
 
 let signup: Signup;
 let getAccount: GetAccount;
